@@ -66,7 +66,7 @@ namespace NigdeTerminal.App.Data.Migrations
                             CanDepartFromCenter = false,
                             CompanyType = "YerelMinibus",
                             IsActive = true,
-                            Name = "Aksaray"
+                            Name = "AKSARAY BİRLİK"
                         },
                         new
                         {
@@ -74,7 +74,7 @@ namespace NigdeTerminal.App.Data.Migrations
                             CanDepartFromCenter = false,
                             CompanyType = "YerelMinibus",
                             IsActive = true,
-                            Name = "Derinkuyu"
+                            Name = "DERİNKUYU"
                         },
                         new
                         {
@@ -82,7 +82,7 @@ namespace NigdeTerminal.App.Data.Migrations
                             CanDepartFromCenter = false,
                             CompanyType = "YerelMinibus",
                             IsActive = true,
-                            Name = "Karacaerler"
+                            Name = "KARACAERLER"
                         },
                         new
                         {
@@ -90,7 +90,7 @@ namespace NigdeTerminal.App.Data.Migrations
                             CanDepartFromCenter = true,
                             CompanyType = "Sehirlerarasi",
                             IsActive = true,
-                            Name = "Aydoğanlar"
+                            Name = "NİĞDE AYDOĞANLAR SEYAHAT"
                         },
                         new
                         {
@@ -98,7 +98,7 @@ namespace NigdeTerminal.App.Data.Migrations
                             CanDepartFromCenter = true,
                             CompanyType = "Sehirlerarasi",
                             IsActive = true,
-                            Name = "İnan"
+                            Name = "NİĞDE İNAN TURİZM"
                         },
                         new
                         {
@@ -106,7 +106,15 @@ namespace NigdeTerminal.App.Data.Migrations
                             CanDepartFromCenter = true,
                             CompanyType = "Sehirlerarasi",
                             IsActive = true,
-                            Name = "Lüks Ereğli"
+                            Name = "LÜKS EREĞLİ"
+                        },
+                        new
+                        {
+                            Id = new Guid("5aa15e8f-faf7-4bf3-a259-09e4433a5e07"),
+                            CanDepartFromCenter = true,
+                            CompanyType = "Sehirlerarasi",
+                            IsActive = true,
+                            Name = "NET TURİZM SEYAHAT"
                         });
                 });
 

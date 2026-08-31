@@ -41,17 +41,17 @@ public sealed class DatabaseBootstrapTests
             })
             .ToArray();
 
-        Assert.Equal(6, seedCompanies.Length);
+        Assert.Equal(7, seedCompanies.Length);
         Assert.All(seedCompanies, companyData => Assert.True(companyData.IsActive));
 
         Assert.True(
-            new HashSet<string>(["Aksaray", "Derinkuyu", "Karacaerler"])
+            new HashSet<string>(["AKSARAY BİRLİK", "DERİNKUYU", "KARACAERLER"])
                 .SetEquals(seedCompanies
                 .Where(companyData => companyData.CompanyType == CompanyType.LocalMinibus)
                 .Select(companyData => companyData.Name)));
 
         Assert.True(
-            new HashSet<string>(["Aydoğanlar", "İnan", "Lüks Ereğli"])
+            new HashSet<string>(["NİĞDE AYDOĞANLAR SEYAHAT", "NİĞDE İNAN TURİZM", "LÜKS EREĞLİ", "NET TURİZM SEYAHAT"])
                 .SetEquals(seedCompanies
                 .Where(companyData => companyData.CanDepartFromCenter)
                 .Select(companyData => companyData.Name)));

@@ -23,12 +23,13 @@ public sealed class PostgreSqlPersistenceTests : IAsyncLifetime
 
         var companies = await dataAccess.GetAllAsync();
 
-        AssertCompany(companies, "Aksaray", CompanyType.LocalMinibus, false);
-        AssertCompany(companies, "Derinkuyu", CompanyType.LocalMinibus, false);
-        AssertCompany(companies, "Karacaerler", CompanyType.LocalMinibus, false);
-        AssertCompany(companies, "Aydoğanlar", CompanyType.Intercity, true);
-        AssertCompany(companies, "İnan", CompanyType.Intercity, true);
-        AssertCompany(companies, "Lüks Ereğli", CompanyType.Intercity, true);
+        AssertCompany(companies, "AKSARAY BİRLİK", CompanyType.LocalMinibus, false);
+        AssertCompany(companies, "DERİNKUYU", CompanyType.LocalMinibus, false);
+        AssertCompany(companies, "KARACAERLER", CompanyType.LocalMinibus, false);
+        AssertCompany(companies, "NİĞDE AYDOĞANLAR SEYAHAT", CompanyType.Intercity, true);
+        AssertCompany(companies, "NİĞDE İNAN TURİZM", CompanyType.Intercity, true);
+        AssertCompany(companies, "LÜKS EREĞLİ", CompanyType.Intercity, true);
+        AssertCompany(companies, "NET TURİZM SEYAHAT", CompanyType.Intercity, true);
     }
 
     [PostgreSqlFact]
@@ -47,7 +48,7 @@ public sealed class PostgreSqlPersistenceTests : IAsyncLifetime
     public async Task Invalid_payment_method_is_rejected_by_check_constraint()
     {
         await using var dbContext = CreateDbContext();
-        var companyId = await GetCompanyId(dbContext, "Aksaray");
+        var companyId = await GetCompanyId(dbContext, "AKSARAY BİRLİK");
 
         await Assert.ThrowsAsync<PostgresException>(() =>
             dbContext.Database.ExecuteSqlInterpolatedAsync($$"""
@@ -62,7 +63,7 @@ public sealed class PostgreSqlPersistenceTests : IAsyncLifetime
     public async Task Negative_tariff_amount_is_rejected_by_check_constraint()
     {
         await using var dbContext = CreateDbContext();
-        var companyId = await GetCompanyId(dbContext, "Aksaray");
+        var companyId = await GetCompanyId(dbContext, "AKSARAY BİRLİK");
         var dataAccess = new ExitRecordDataAccess(dbContext);
 
         await Assert.ThrowsAsync<DbUpdateException>(() =>
@@ -74,7 +75,7 @@ public sealed class PostgreSqlPersistenceTests : IAsyncLifetime
     {
         await using var dbContext = CreateDbContext();
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
-        var companyId = await GetCompanyId(dbContext, "Aksaray");
+        var companyId = await GetCompanyId(dbContext, "AKSARAY BİRLİK");
         var dataAccess = new ExitRecordDataAccess(dbContext);
         const string plate = "51 TEST 05";
 
