@@ -9,6 +9,7 @@ public sealed class CompanyDataAccess(NigdeTerminalDbContext dbContext)
     {
         return dbContext.Companies
             .AsNoTracking()
+            .Where(company => company.IsActive)
             .OrderBy(company => company.Name)
             .ToListAsync(cancellationToken);
     }

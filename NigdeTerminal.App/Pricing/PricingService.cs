@@ -8,15 +8,6 @@ public sealed class PricingService
         ["DERİNKUYU", "AKSARAY BİRLİK", "KARACAERLER"],
         StringComparer.OrdinalIgnoreCase);
 
-    private static readonly HashSet<string> CenterDepartureCompanies = new(
-        [
-            "NİĞDE İNAN TURİZM",
-            "NİĞDE AYDOĞANLAR SEYAHAT",
-            "LÜKS EREĞLİ",
-            "NET TURİZM SEYAHAT"
-        ],
-        StringComparer.OrdinalIgnoreCase);
-
     public PricingResult Calculate(
         Company company,
         DateTimeOffset departureDateTime,
@@ -31,7 +22,7 @@ public sealed class PricingService
                 PricingRules.ShortDistanceAmount);
         }
 
-        if (departedFromCenter && CenterDepartureCompanies.Contains(company.Name))
+        if (departedFromCenter && company.CanDepartFromCenter)
         {
             return new PricingResult(
                 PricingRules.CenterDepartureTariffName,

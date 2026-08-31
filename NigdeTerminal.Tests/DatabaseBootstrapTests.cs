@@ -71,14 +71,14 @@ public sealed class DatabaseBootstrapTests
         Assert.Equal(nameof(ExitRecord.CompanyId), Assert.Single(foreignKey.Properties).Name);
         Assert.Equal(typeof(Company), foreignKey.PrincipalEntityType.ClrType);
 
-        var indexedProperties = exitRecord.GetIndexes()
-            .Select(index => Assert.Single(index.Properties).Name)
-            .ToHashSet();
-
-        Assert.True(
-            new HashSet<string>(
-                    [nameof(ExitRecord.CompanyId), nameof(ExitRecord.DepartureDateTime)])
-                .SetEquals(indexedProperties));
+        Assert.Contains(
+            exitRecord.GetIndexes(),
+            index => index.Properties.Select(property => property.Name).SequenceEqual(
+                [nameof(ExitRecord.DepartureDate), nameof(ExitRecord.DepartureTime)]));
+        Assert.Contains(
+            exitRecord.GetIndexes(),
+            index => index.Properties.Select(property => property.Name).SequenceEqual(
+                [nameof(ExitRecord.CompanyId)]));
     }
 
     [Fact]
