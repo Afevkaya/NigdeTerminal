@@ -51,7 +51,7 @@ public sealed class NigdeTerminalDbContext(DbContextOptions<NigdeTerminalDbConte
             new Company
             {
                 Id = Guid.Parse("5aa15e8f-faf7-4bf3-a259-09e4433a5e01"),
-                Name = "Aksaray",
+                Name = "AKSARAY BİRLİK",
                 CompanyType = CompanyType.LocalMinibus,
                 CanDepartFromCenter = false,
                 IsActive = true
@@ -59,7 +59,7 @@ public sealed class NigdeTerminalDbContext(DbContextOptions<NigdeTerminalDbConte
             new Company
             {
                 Id = Guid.Parse("5aa15e8f-faf7-4bf3-a259-09e4433a5e02"),
-                Name = "Derinkuyu",
+                Name = "DERİNKUYU",
                 CompanyType = CompanyType.LocalMinibus,
                 CanDepartFromCenter = false,
                 IsActive = true
@@ -67,7 +67,7 @@ public sealed class NigdeTerminalDbContext(DbContextOptions<NigdeTerminalDbConte
             new Company
             {
                 Id = Guid.Parse("5aa15e8f-faf7-4bf3-a259-09e4433a5e03"),
-                Name = "Karacaerler",
+                Name = "KARACAERLER",
                 CompanyType = CompanyType.LocalMinibus,
                 CanDepartFromCenter = false,
                 IsActive = true
@@ -75,7 +75,7 @@ public sealed class NigdeTerminalDbContext(DbContextOptions<NigdeTerminalDbConte
             new Company
             {
                 Id = Guid.Parse("5aa15e8f-faf7-4bf3-a259-09e4433a5e04"),
-                Name = "Aydoğanlar",
+                Name = "NİĞDE AYDOĞANLAR SEYAHAT",
                 CompanyType = CompanyType.Intercity,
                 CanDepartFromCenter = true,
                 IsActive = true
@@ -83,7 +83,7 @@ public sealed class NigdeTerminalDbContext(DbContextOptions<NigdeTerminalDbConte
             new Company
             {
                 Id = Guid.Parse("5aa15e8f-faf7-4bf3-a259-09e4433a5e05"),
-                Name = "İnan",
+                Name = "NİĞDE İNAN TURİZM",
                 CompanyType = CompanyType.Intercity,
                 CanDepartFromCenter = true,
                 IsActive = true
@@ -91,7 +91,15 @@ public sealed class NigdeTerminalDbContext(DbContextOptions<NigdeTerminalDbConte
             new Company
             {
                 Id = Guid.Parse("5aa15e8f-faf7-4bf3-a259-09e4433a5e06"),
-                Name = "Lüks Ereğli",
+                Name = "LÜKS EREĞLİ",
+                CompanyType = CompanyType.Intercity,
+                CanDepartFromCenter = true,
+                IsActive = true
+            },
+            new Company
+            {
+                Id = Guid.Parse("5aa15e8f-faf7-4bf3-a259-09e4433a5e07"),
+                Name = "NET TURİZM SEYAHAT",
                 CompanyType = CompanyType.Intercity,
                 CanDepartFromCenter = true,
                 IsActive = true
