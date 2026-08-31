@@ -5,8 +5,191 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NigdeTerminal.App"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Niğde Terminali - Çıkış Kaydı"
+        Width="720"
+        Height="680"
+        MinWidth="620"
+        MinHeight="620"
+        PreviewKeyDown="Window_PreviewKeyDown"
+        WindowStartupLocation="CenterScreen">
+    <Grid Background="#F3F4F6"
+          FocusManager.FocusedElement="{Binding ElementName=VehiclePlateTextBox}">
+        <Border Margin="32"
+                Padding="32"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Background="White"
+                BorderBrush="#D1D5DB"
+                BorderThickness="1"
+                CornerRadius="8">
+            <Grid Width="560">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
+                <TextBlock Grid.Row="0"
+                           Margin="0,0,0,28"
+                           FontSize="28"
+                           FontWeight="SemiBold"
+                           Foreground="#111827"
+                           Text="Çıkış Kaydı" />
+
+                <Grid Grid.Row="1" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Target="{Binding ElementName=VehiclePlateTextBox}"
+                           Content="Plaka" />
+                    <TextBox x:Name="VehiclePlateTextBox"
+                             Grid.Column="1"
+                             Height="40"
+                             Padding="10,7"
+                             FontSize="16"
+                             MaxLength="16"
+                             LostKeyboardFocus="VehiclePlateTextBox_LostKeyboardFocus"
+                             TabIndex="0" />
+                </Grid>
+
+                <Grid Grid.Row="2" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Target="{Binding ElementName=CompanyComboBox}"
+                           Content="Firma" />
+                    <ComboBox x:Name="CompanyComboBox"
+                              Grid.Column="1"
+                              Height="40"
+                              Padding="8,5"
+                              DisplayMemberPath="Name"
+                              IsEditable="True"
+                              IsTextSearchEnabled="False"
+                              StaysOpenOnEdit="True"
+                              SelectionChanged="CompanyComboBox_SelectionChanged"
+                              KeyUp="CompanyComboBox_KeyUp"
+                              PreviewKeyDown="CompanyComboBox_PreviewKeyDown"
+                              TabIndex="1" />
+                </Grid>
+
+                <Grid Grid.Row="3" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Text="Niğde Çıkışlı" />
+                    <CheckBox x:Name="DepartedFromCenterCheckBox"
+                              Grid.Column="1"
+                              VerticalAlignment="Center"
+                              Content="Araç Niğde merkezden çıkacak"
+                              Visibility="Collapsed"
+                              Checked="DepartedFromCenterCheckBox_Changed"
+                              Unchecked="DepartedFromCenterCheckBox_Changed"
+                              TabIndex="2" />
+                </Grid>
+
+                <Grid Grid.Row="4" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Text="Ödeme Yöntemi" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <RadioButton x:Name="CashRadioButton"
+                                     Margin="0,0,28,0"
+                                     VerticalAlignment="Center"
+                                     GroupName="PaymentMethod"
+                                     Content="Nakit (F3)"
+                                     TabIndex="3" />
+                        <RadioButton x:Name="CreditCardRadioButton"
+                                     VerticalAlignment="Center"
+                                     GroupName="PaymentMethod"
+                                     Content="Kredi Kartı (F4)"
+                                     TabIndex="4" />
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="5" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Target="{Binding ElementName=TariffTextBox}"
+                           Content="Tarife" />
+                    <TextBox x:Name="TariffTextBox"
+                             Grid.Column="1"
+                             Height="40"
+                             Padding="10,7"
+                             Background="#F9FAFB"
+                             IsReadOnly="True"
+                             IsTabStop="False" />
+                </Grid>
+
+                <Grid Grid.Row="6" Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Target="{Binding ElementName=AmountTextBox}"
+                           Content="Ücret" />
+                    <TextBox x:Name="AmountTextBox"
+                             Grid.Column="1"
+                             Height="40"
+                             Padding="10,7"
+                             Background="#F9FAFB"
+                             FontSize="17"
+                             FontWeight="SemiBold"
+                             IsReadOnly="True"
+                             IsTabStop="False" />
+                </Grid>
+
+                <Button x:Name="SaveButton"
+                        Grid.Row="7"
+                        Height="58"
+                        Background="#2563EB"
+                        BorderThickness="0"
+                        Content="Kaydet (F2)"
+                        Foreground="White"
+                        FontSize="18"
+                        FontWeight="SemiBold"
+                        Click="SaveButton_Click"
+                        TabIndex="5" />
+
+                <Border Grid.Row="8"
+                        MinHeight="48"
+                        Margin="0,20,0,0"
+                        Padding="12"
+                        Background="#F9FAFB"
+                        BorderBrush="#E5E7EB"
+                        BorderThickness="1"
+                        CornerRadius="4">
+                    <TextBlock x:Name="StatusTextBlock"
+                               VerticalAlignment="Center"
+                               Foreground="#374151"
+                               TextWrapping="Wrap"
+                               AutomationProperties.LiveSetting="Polite" />
+                </Border>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

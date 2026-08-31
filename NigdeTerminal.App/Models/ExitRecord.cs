@@ -8,7 +8,9 @@ public sealed class ExitRecord
 
     public required string VehiclePlate { get; set; }
 
-    public DateTimeOffset DepartureDateTime { get; set; }
+    public DateOnly DepartureDate { get; set; }
+
+    public TimeOnly DepartureTime { get; set; }
 
     public PaymentMethod PaymentMethod { get; set; }
 

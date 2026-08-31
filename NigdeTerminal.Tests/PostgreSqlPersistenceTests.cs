@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using NigdeTerminal.App.Data;
 using NigdeTerminal.App.Models;
+using NigdeTerminal.App.Pricing;
+using NigdeTerminal.App.Services;
 using Npgsql;
 
 namespace NigdeTerminal.Tests;
@@ -23,6 +25,10 @@ public sealed class PostgreSqlPersistenceTests : IAsyncLifetime
 
         var companies = await dataAccess.GetAllAsync();
 
+        Assert.Equal(await GetActiveCompanyNamesInDatabaseOrder(dbContext),
+            companies.Select(company => company.Name));
+        Assert.All(companies, company => Assert.True(company.IsActive));
+
         AssertCompany(companies, "AKSARAY BİRLİK", CompanyType.LocalMinibus, false);
         AssertCompany(companies, "DERİNKUYU", CompanyType.LocalMinibus, false);
         AssertCompany(companies, "KARACAERLER", CompanyType.LocalMinibus, false);
@@ -30,6 +36,26 @@ public sealed class PostgreSqlPersistenceTests : IAsyncLifetime
         AssertCompany(companies, "NİĞDE İNAN TURİZM", CompanyType.Intercity, true);
         AssertCompany(companies, "LÜKS EREĞLİ", CompanyType.Intercity, true);
         AssertCompany(companies, "NET TURİZM SEYAHAT", CompanyType.Intercity, true);
+    }
+
+    [PostgreSqlFact]
+    public async Task Company_list_excludes_inactive_companies_and_remains_alphabetical()
+    {
+        await using var dbContext = CreateDbContext();
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        var company = await dbContext.Companies.SingleAsync(
+            company => company.Name == "DERİNKUYU");
+        company.IsActive = false;
+        await dbContext.SaveChangesAsync();
+
+        var companies = await new CompanyDataAccess(dbContext).GetAllAsync();
+
+        Assert.DoesNotContain(companies, item => item.Id == company.Id);
+        Assert.All(companies, item => Assert.True(item.IsActive));
+        Assert.Equal(await GetActiveCompanyNamesInDatabaseOrder(dbContext),
+            companies.Select(item => item.Name));
+
+        await transaction.RollbackAsync();
     }
 
     [PostgreSqlFact]
@@ -53,9 +79,9 @@ public sealed class PostgreSqlPersistenceTests : IAsyncLifetime
         await Assert.ThrowsAsync<PostgresException>(() =>
             dbContext.Database.ExecuteSqlInterpolatedAsync($$"""
                 INSERT INTO cikis_kayitlari
-                    (id, firma_id, plaka, cikis_tarihi, odeme_yontemi, tarife_adi, tarife_ucreti, merkezden_cikti_mi)
+                    (id, firma_id, plaka, cikis_tarihi, cikis_saati, odeme_yontemi, tarife_adi, tarife_ucreti, merkezden_cikti_mi)
                 VALUES
-                    ({{Guid.NewGuid()}}, {{companyId}}, {{"51 TEST 03"}}, {{DateTimeOffset.UtcNow}}, {{"Havale"}}, {{"Test"}}, {{10m}}, {{false}})
+                    ({{Guid.NewGuid()}}, {{companyId}}, {{"51 TEST 03"}}, {{DateOnly.FromDateTime(DateTime.Now)}}, {{TimeOnly.FromDateTime(DateTime.Now)}}, {{"Havale"}}, {{"Test"}}, {{10m}}, {{false}})
                 """));
     }
 
@@ -98,9 +124,98 @@ public sealed class PostgreSqlPersistenceTests : IAsyncLifetime
         await transaction.RollbackAsync();
     }
 
+    [PostgreSqlFact]
+    public async Task Exit_registration_uses_pricing_and_persists_correct_values()
+    {
+        await using var dbContext = CreateDbContext();
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        var company = await dbContext.Companies.SingleAsync(
+            item => item.Name == "NİĞDE İNAN TURİZM");
+        var service = CreateExitRegistrationService(dbContext);
+        var earliestExpectedTime = DateTime.Now;
+
+        var record = await service.RegisterAsync(
+            "51abc123",
+            company,
+            PaymentMethod.CreditCard,
+            departedFromCenter: true);
+
+        var latestExpectedTime = DateTime.Now;
+        var persistedRecord = await dbContext.ExitRecords
+            .AsNoTracking()
+            .SingleAsync(item => item.Id == record.Id);
+
+        Assert.NotEqual(Guid.Empty, record.Id);
+        Assert.Equal(company.Id, record.CompanyId);
+        Assert.Equal("51 ABC 123", record.VehiclePlate);
+        Assert.InRange(
+            record.DepartureDate.ToDateTime(record.DepartureTime),
+            earliestExpectedTime,
+            latestExpectedTime);
+        Assert.Equal(PaymentMethod.CreditCard, record.PaymentMethod);
+        Assert.Equal(PricingRules.CenterDepartureTariffName, record.TariffName);
+        Assert.Equal(PricingRules.CenterDepartureAmount, record.TariffAmount);
+        Assert.True(record.DepartedFromCenter);
+        Assert.Equal(record.VehiclePlate, persistedRecord.VehiclePlate);
+        Assert.Equal(record.DepartureDate, persistedRecord.DepartureDate);
+        Assert.InRange(
+            Math.Abs(record.DepartureTime.Ticks - persistedRecord.DepartureTime.Ticks),
+            0,
+            9);
+        Assert.Equal(record.TariffName, persistedRecord.TariffName);
+        Assert.Equal(record.TariffAmount, persistedRecord.TariffAmount);
+
+        await transaction.RollbackAsync();
+    }
+
+    [PostgreSqlFact]
+    public async Task Exit_registration_allows_same_plate_more_than_once()
+    {
+        await using var dbContext = CreateDbContext();
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        var company = await dbContext.Companies.SingleAsync(
+            item => item.Name == "AKSARAY BİRLİK");
+        var service = CreateExitRegistrationService(dbContext);
+
+        var firstRecord = await service.RegisterAsync(
+            "51 ABC 123", company, PaymentMethod.Cash, false);
+        var secondRecord = await service.RegisterAsync(
+            "51abc123", company, PaymentMethod.CreditCard, false);
+
+        Assert.NotEqual(firstRecord.Id, secondRecord.Id);
+        Assert.Equal(firstRecord.VehiclePlate, secondRecord.VehiclePlate);
+        Assert.Equal(
+            2,
+            await dbContext.ExitRecords.CountAsync(item =>
+                item.Id == firstRecord.Id || item.Id == secondRecord.Id));
+
+        await transaction.RollbackAsync();
+    }
+
+    [PostgreSqlFact]
+    public async Task Exit_date_and_time_use_separate_postgresql_column_types()
+    {
+        await using var dbContext = CreateDbContext();
+
+        var dateColumnType = await GetColumnDataType(dbContext, "cikis_tarihi");
+        var timeColumnType = await GetColumnDataType(dbContext, "cikis_saati");
+
+        Assert.Equal("date", dateColumnType);
+        Assert.Equal("time without time zone", timeColumnType);
+    }
+
     private static NigdeTerminalDbContext CreateDbContext()
     {
         return DatabaseBootstrap.CreateDbContext(AppContext.BaseDirectory);
+    }
+
+    private static ExitRegistrationService CreateExitRegistrationService(
+        NigdeTerminalDbContext dbContext)
+    {
+        return new ExitRegistrationService(
+            new VehiclePlateService(),
+            new PricingService(),
+            new ExitRecordDataAccess(dbContext));
     }
 
     private static async Task<Guid> GetCompanyId(
@@ -110,6 +225,32 @@ public sealed class PostgreSqlPersistenceTests : IAsyncLifetime
         return await dbContext.Companies
             .Where(company => company.Name == companyName)
             .Select(company => company.Id)
+            .SingleAsync();
+    }
+
+    private static Task<List<string>> GetActiveCompanyNamesInDatabaseOrder(
+        NigdeTerminalDbContext dbContext)
+    {
+        return dbContext.Companies
+            .AsNoTracking()
+            .Where(company => company.IsActive)
+            .OrderBy(company => company.Name)
+            .Select(company => company.Name)
+            .ToListAsync();
+    }
+
+    private static Task<string> GetColumnDataType(
+        NigdeTerminalDbContext dbContext,
+        string columnName)
+    {
+        return dbContext.Database
+            .SqlQuery<string>($$"""
+                SELECT data_type AS "Value"
+                FROM information_schema.columns
+                WHERE table_schema = 'public'
+                  AND table_name = 'cikis_kayitlari'
+                  AND column_name = {{columnName}}
+                """)
             .SingleAsync();
     }
 
@@ -137,7 +278,8 @@ public sealed class PostgreSqlPersistenceTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             CompanyId = companyId,
             VehiclePlate = plate,
-            DepartureDateTime = DateTimeOffset.UtcNow,
+            DepartureDate = DateOnly.FromDateTime(DateTime.Now),
+            DepartureTime = TimeOnly.FromDateTime(DateTime.Now),
             PaymentMethod = paymentMethod,
             TariffName = "Test Tarifesi",
             TariffAmount = tariffAmount,

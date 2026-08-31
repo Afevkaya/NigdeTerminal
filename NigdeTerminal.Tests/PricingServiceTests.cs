@@ -33,9 +33,9 @@ public sealed class PricingServiceTests
     }
 
     [Theory]
-    [InlineData("Derinkuyu")]
-    [InlineData("Aksaray Birlik")]
-    [InlineData("Karacaerler")]
+    [InlineData("DERİNKUYU")]
+    [InlineData("AKSARAY BİRLİK")]
+    [InlineData("KARACAERLER")]
     public void Short_distance_company_uses_short_distance_tariff(string companyName)
     {
         var result = _pricingService.Calculate(
@@ -91,7 +91,7 @@ public sealed class PricingServiceTests
     public void Short_distance_tariff_has_priority_over_other_rules()
     {
         var result = _pricingService.Calculate(
-            CreateCompany("Derinkuyu", canDepartFromCenter: true),
+            CreateCompany("DERİNKUYU", canDepartFromCenter: true),
             CreateDeparture(3, 0),
             departedFromCenter: true);
 
@@ -116,10 +116,24 @@ public sealed class PricingServiceTests
     }
 
     [Fact]
-    public void Company_outside_center_departure_list_cannot_use_center_tariff()
+    public void Company_marked_as_center_departure_eligible_uses_center_tariff_regardless_of_name()
     {
         var result = _pricingService.Calculate(
             CreateCompany("Normal Şehirlerarası Firma", canDepartFromCenter: true),
+            CreateDeparture(12, 0),
+            departedFromCenter: true);
+
+        AssertPricing(
+            result,
+            PricingRules.CenterDepartureAmount,
+            PricingRules.CenterDepartureTariffName);
+    }
+
+    [Fact]
+    public void Company_not_marked_as_center_departure_eligible_cannot_use_center_tariff()
+    {
+        var result = _pricingService.Calculate(
+            CreateCompany("NİĞDE İNAN TURİZM", canDepartFromCenter: false),
             CreateDeparture(12, 0),
             departedFromCenter: true);
 

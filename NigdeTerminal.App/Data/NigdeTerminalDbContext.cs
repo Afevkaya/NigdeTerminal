@@ -130,9 +130,14 @@ public sealed class NigdeTerminalDbContext(DbContextOptions<NigdeTerminalDbConte
             .HasColumnName("plaka")
             .IsRequired();
 
-        exitRecord.Property(x => x.DepartureDateTime)
+        exitRecord.Property(x => x.DepartureDate)
             .HasColumnName("cikis_tarihi")
-            .HasColumnType("timestamp with time zone")
+            .HasColumnType("date")
+            .IsRequired();
+
+        exitRecord.Property(x => x.DepartureTime)
+            .HasColumnName("cikis_saati")
+            .HasColumnType("time without time zone")
             .IsRequired();
 
         exitRecord.Property(x => x.PaymentMethod)
@@ -160,6 +165,6 @@ public sealed class NigdeTerminalDbContext(DbContextOptions<NigdeTerminalDbConte
             .HasForeignKey(x => x.CompanyId);
 
         exitRecord.HasIndex(x => x.CompanyId);
-        exitRecord.HasIndex(x => x.DepartureDateTime);
+        exitRecord.HasIndex(x => new { x.DepartureDate, x.DepartureTime });
     }
 }
