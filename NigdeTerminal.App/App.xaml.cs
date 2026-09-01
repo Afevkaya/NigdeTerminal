@@ -30,7 +30,8 @@ public partial class App : Application
             companyDataAccess,
             pricingService,
             vehiclePlateService,
-            exitRegistrationService);
+            exitRegistrationService,
+            exitRecordDataAccess);
         MainWindow = mainWindow;
         mainWindow.Show();
     }

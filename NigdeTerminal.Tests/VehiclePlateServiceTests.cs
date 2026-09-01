@@ -71,6 +71,18 @@ public sealed class VehiclePlateServiceTests
         AssertInvalid(input);
     }
 
+    [Theory]
+    [InlineData("51abc123", "51ABC123")]
+    [InlineData(" 51  AbC ", "51ABC")]
+    [InlineData("   ", "")]
+    [InlineData(null, "")]
+    public void Search_term_is_compacted_and_normalized_to_uppercase(
+        string? input,
+        string expected)
+    {
+        Assert.Equal(expected, _service.NormalizeSearchTerm(input));
+    }
+
     private void AssertNormalized(string input, string expected)
     {
         var isValid = _service.TryNormalize(input, out var normalizedPlate);

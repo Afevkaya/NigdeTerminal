@@ -4,6 +4,21 @@ namespace NigdeTerminal.App.Services;
 
 public sealed partial class VehiclePlateService
 {
+    public string NormalizeSearchTerm(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return string.Empty;
+        }
+
+        if (TryNormalize(input, out var normalizedPlate))
+        {
+            return normalizedPlate.Replace(" ", string.Empty);
+        }
+
+        return WhitespacePattern().Replace(input, string.Empty).ToUpperInvariant();
+    }
+
     public bool TryNormalize(string? input, out string normalizedPlate)
     {
         normalizedPlate = string.Empty;

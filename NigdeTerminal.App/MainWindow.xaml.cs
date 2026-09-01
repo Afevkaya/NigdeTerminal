@@ -17,18 +17,22 @@ public partial class MainWindow : Window
     private readonly PricingService _pricingService;
     private readonly VehiclePlateService _vehiclePlateService;
     private readonly ExitRegistrationService _exitRegistrationService;
+    private readonly ExitRecordDataAccess _exitRecordDataAccess;
     private ICollectionView? _companyView;
+    private RecordListWindow? _recordListWindow;
 
     public MainWindow(
         CompanyDataAccess companyDataAccess,
         PricingService pricingService,
         VehiclePlateService vehiclePlateService,
-        ExitRegistrationService exitRegistrationService)
+        ExitRegistrationService exitRegistrationService,
+        ExitRecordDataAccess exitRecordDataAccess)
     {
         _companyDataAccess = companyDataAccess;
         _pricingService = pricingService;
         _vehiclePlateService = vehiclePlateService;
         _exitRegistrationService = exitRegistrationService;
+        _exitRecordDataAccess = exitRecordDataAccess;
         InitializeComponent();
         Loaded += MainWindow_Loaded;
     }
@@ -213,6 +217,27 @@ public partial class MainWindow : Window
         {
             SaveButton.IsEnabled = true;
         }
+    }
+
+    private void ShowRecordsButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_recordListWindow is not null)
+        {
+            if (_recordListWindow.WindowState == WindowState.Minimized)
+            {
+                _recordListWindow.WindowState = WindowState.Normal;
+            }
+
+            _recordListWindow.Activate();
+            return;
+        }
+
+        _recordListWindow = new RecordListWindow(_companyDataAccess, _exitRecordDataAccess)
+        {
+            Owner = this
+        };
+        _recordListWindow.Closed += (_, _) => _recordListWindow = null;
+        _recordListWindow.Show();
     }
 
     private void ResetForm()
