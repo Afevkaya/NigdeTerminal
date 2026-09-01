@@ -1,0 +1,151 @@
+<Window x:Class="NigdeTerminal.App.RecordListWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Niğde Terminali - Çıkış Kayıtları"
+        Width="1050"
+        Height="680"
+        MinWidth="650"
+        MinHeight="420"
+        WindowStartupLocation="CenterOwner">
+    <Grid Background="#F3F4F6">
+        <Border Margin="24"
+                Padding="24"
+                Background="White"
+                BorderBrush="#D1D5DB"
+                BorderThickness="1"
+                CornerRadius="8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Margin="0,0,0,22"
+                           FontSize="28"
+                           FontWeight="SemiBold"
+                           Foreground="#111827"
+                           Text="Çıkış Kayıtları" />
+
+                <Grid Grid.Row="1" Margin="0,0,0,20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="160" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0"
+                           Margin="0,0,6,0"
+                           VerticalAlignment="Center"
+                           Target="{Binding ElementName=DatePicker}"
+                           Content="Tarih" />
+                    <DatePicker x:Name="DatePicker"
+                                Grid.Column="1"
+                                Height="36"
+                                VerticalContentAlignment="Center"
+                                SelectedDateFormat="Short" />
+
+                    <Label Grid.Column="2"
+                           Margin="18,0,6,0"
+                           VerticalAlignment="Center"
+                           Target="{Binding ElementName=CompanyComboBox}"
+                           Content="Firma" />
+                    <ComboBox x:Name="CompanyComboBox"
+                              Grid.Column="3"
+                              Height="36"
+                              Padding="8,4"
+                              DisplayMemberPath="Name" />
+
+                    <Label Grid.Column="4"
+                           Margin="18,0,6,0"
+                           VerticalAlignment="Center"
+                           Target="{Binding ElementName=VehiclePlateTextBox}"
+                           Content="Plaka" />
+                    <TextBox x:Name="VehiclePlateTextBox"
+                             Grid.Column="5"
+                             Height="36"
+                             Padding="9,6"
+                             MaxLength="16" />
+
+                    <StackPanel Grid.Row="1"
+                                Grid.Column="0"
+                                Grid.ColumnSpan="6"
+                                Margin="0,10,0,0"
+                                HorizontalAlignment="Right"
+                                Orientation="Horizontal">
+                        <Button x:Name="ListButton"
+                                Width="110"
+                                Height="36"
+                                Background="#2563EB"
+                                BorderThickness="0"
+                                Foreground="White"
+                                FontWeight="SemiBold"
+                                Content="Listele"
+                                Click="ListButton_Click" />
+                        <Button x:Name="RefreshButton"
+                                Width="110"
+                                Height="36"
+                                Margin="12,0,0,0"
+                                Background="White"
+                                BorderBrush="#2563EB"
+                                BorderThickness="1"
+                                Foreground="#1D4ED8"
+                                FontWeight="SemiBold"
+                                Content="Yenile"
+                                Click="RefreshButton_Click" />
+                    </StackPanel>
+                </Grid>
+
+                <DataGrid x:Name="RecordsDataGrid"
+                          Grid.Row="2"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          CanUserReorderColumns="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          SelectionUnit="FullRow"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          AlternatingRowBackground="#F9FAFB">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="0.7*"
+                                            Binding="{Binding DepartureTimeText}"
+                                            Header="Saat" />
+                        <DataGridTextColumn Width="2*"
+                                            Binding="{Binding CompanyName}"
+                                            Header="Firma" />
+                        <DataGridTextColumn Width="1.2*"
+                                            Binding="{Binding VehiclePlate}"
+                                            Header="Plaka" />
+                        <DataGridTextColumn Width="1.1*"
+                                            Binding="{Binding PaymentMethodText}"
+                                            Header="Ödeme" />
+                        <DataGridTextColumn Width="1*"
+                                            Binding="{Binding TariffAmountText}"
+                                            Header="Ücret" />
+                        <DataGridTextColumn Width="1.1*"
+                                            Binding="{Binding DepartedFromCenterText}"
+                                            Header="Niğde Çıkışlı" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <TextBlock x:Name="StatusTextBlock"
+                           Grid.Row="3"
+                           Margin="0,16,0,0"
+                           Foreground="#6B7280"
+                           TextWrapping="Wrap"
+                           AutomationProperties.LiveSetting="Polite" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

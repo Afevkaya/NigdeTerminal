@@ -7,23 +7,24 @@
         mc:Ignorable="d"
         Title="Niğde Terminali - Çıkış Kaydı"
         Width="720"
-        Height="680"
-        MinWidth="620"
-        MinHeight="620"
+        Height="740"
+        MinWidth="480"
+        MinHeight="520"
         PreviewKeyDown="Window_PreviewKeyDown"
         WindowStartupLocation="CenterScreen">
     <Grid Background="#F3F4F6"
           FocusManager.FocusedElement="{Binding ElementName=VehiclePlateTextBox}">
         <Border Margin="32"
                 Padding="32"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
                 Background="White"
                 BorderBrush="#D1D5DB"
                 BorderThickness="1"
                 CornerRadius="8">
-            <Grid Width="560">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+            <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -175,7 +176,21 @@
                         Click="SaveButton_Click"
                         TabIndex="5" />
 
-                <Border Grid.Row="8"
+                <Button x:Name="ShowRecordsButton"
+                        Grid.Row="8"
+                        Height="44"
+                        Margin="0,12,0,0"
+                        Background="White"
+                        BorderBrush="#2563EB"
+                        BorderThickness="1"
+                        Content="Kayıtları Görüntüle"
+                        Foreground="#1D4ED8"
+                        FontSize="15"
+                        FontWeight="SemiBold"
+                        Click="ShowRecordsButton_Click"
+                        TabIndex="6" />
+
+                <Border Grid.Row="9"
                         MinHeight="48"
                         Margin="0,20,0,0"
                         Padding="12"
@@ -190,6 +205,7 @@
                                AutomationProperties.LiveSetting="Polite" />
                 </Border>
             </Grid>
+            </ScrollViewer>
         </Border>
     </Grid>
 </Window>
