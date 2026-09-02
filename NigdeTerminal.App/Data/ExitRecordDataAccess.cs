@@ -62,4 +62,33 @@ public sealed class ExitRecordDataAccess(
                 item.ExitRecord.DepartedFromCenter))
             .ToListAsync(cancellationToken);
     }
+
+    public Task<List<DailyReportRecord>> GetDailyReportRecordsAsync(
+        DateOnly date,
+        CancellationToken cancellationToken = default)
+    {
+        var nextDate = date.AddDays(1);
+
+        return (
+            from exitRecord in dbContext.ExitRecords.AsNoTracking()
+            join company in dbContext.Companies.AsNoTracking()
+                on exitRecord.CompanyId equals company.Id
+            where exitRecord.DepartureDate >= date
+                && exitRecord.DepartureDate < nextDate
+            orderby exitRecord.DepartureDate,
+                exitRecord.DepartureTime,
+                exitRecord.Id
+            select new DailyReportRecord(
+                exitRecord.Id,
+                exitRecord.VehiclePlate,
+                exitRecord.DepartureDate,
+                exitRecord.DepartureTime,
+                exitRecord.PaymentMethod,
+                exitRecord.TariffAmount,
+                exitRecord.DepartedFromCenter,
+                company.Name,
+                company.CompanyType,
+                company.CanDepartFromCenter))
+            .ToListAsync(cancellationToken);
+    }
 }

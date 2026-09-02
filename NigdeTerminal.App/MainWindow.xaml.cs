@@ -4,9 +4,11 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using Microsoft.Win32;
 using NigdeTerminal.App.Data;
 using NigdeTerminal.App.Models;
 using NigdeTerminal.App.Pricing;
+using NigdeTerminal.App.Reporting;
 using NigdeTerminal.App.Services;
 
 namespace NigdeTerminal.App;
@@ -18,6 +20,8 @@ public partial class MainWindow : Window
     private readonly VehiclePlateService _vehiclePlateService;
     private readonly ExitRegistrationService _exitRegistrationService;
     private readonly ExitRecordDataAccess _exitRecordDataAccess;
+    private readonly DailyReportService _dailyReportService;
+    private readonly DailyExcelReportWriter _dailyExcelReportWriter;
     private ICollectionView? _companyView;
     private RecordListWindow? _recordListWindow;
 
@@ -26,14 +30,19 @@ public partial class MainWindow : Window
         PricingService pricingService,
         VehiclePlateService vehiclePlateService,
         ExitRegistrationService exitRegistrationService,
-        ExitRecordDataAccess exitRecordDataAccess)
+        ExitRecordDataAccess exitRecordDataAccess,
+        DailyReportService dailyReportService,
+        DailyExcelReportWriter dailyExcelReportWriter)
     {
         _companyDataAccess = companyDataAccess;
         _pricingService = pricingService;
         _vehiclePlateService = vehiclePlateService;
         _exitRegistrationService = exitRegistrationService;
         _exitRecordDataAccess = exitRecordDataAccess;
+        _dailyReportService = dailyReportService;
+        _dailyExcelReportWriter = dailyExcelReportWriter;
         InitializeComponent();
+        ReportDatePicker.SelectedDate = DateTime.Today;
         Loaded += MainWindow_Loaded;
     }
 
@@ -238,6 +247,72 @@ public partial class MainWindow : Window
         };
         _recordListWindow.Closed += (_, _) => _recordListWindow = null;
         _recordListWindow.Show();
+    }
+
+    private async void DailyExcelReportButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (ReportDatePicker.SelectedDate is not DateTime selectedDate)
+        {
+            MessageBox.Show(
+                this,
+                "Lütfen rapor tarihini seçin.",
+                "Rapor Tarihi",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        var saveFileDialog = new SaveFileDialog
+        {
+            DefaultExt = ".xlsx",
+            Filter = "Excel Dosyası (*.xlsx)|*.xlsx",
+            FileName = $"Terminal_Raporu_{selectedDate:dd-MM-yyyy}.xlsx"
+        };
+
+        if (saveFileDialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        var filePath = saveFileDialog.FileName;
+        var reportDate = DateOnly.FromDateTime(selectedDate);
+
+        DailyReport dailyReport;
+
+        try
+        {
+            dailyReport = await _dailyReportService.GetAsync(reportDate);
+        }
+        catch (Exception)
+        {
+            MessageBox.Show(
+                this,
+                "Rapor verileri alınırken bir hata oluştu.",
+                "Günlük Excel Raporu",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+            return;
+        }
+
+        try
+        {
+            _dailyExcelReportWriter.Write(filePath, reportDate, dailyReport);
+            MessageBox.Show(
+                this,
+                "Excel raporu başarıyla oluşturuldu.",
+                "Rapor Oluşturuldu",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception)
+        {
+            MessageBox.Show(
+                this,
+                "Excel raporu oluşturulurken bir hata oluştu.",
+                "Günlük Excel Raporu",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
     }
 
     private void ResetForm()
