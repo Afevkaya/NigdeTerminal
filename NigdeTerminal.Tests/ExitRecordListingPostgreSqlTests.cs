@@ -125,6 +125,50 @@ public sealed class ExitRecordListingPostgreSqlTests : IAsyncLifetime
         await transaction.RollbackAsync();
     }
 
+    [PostgreSqlFact]
+    public async Task Daily_report_query_returns_only_selected_day_with_company_details()
+    {
+        await using var dbContext = CreateDbContext();
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        var company = await GetCompany(dbContext, "NİĞDE İNAN TURİZM");
+        var selectedDate = new DateOnly(2035, 4, 20);
+        var previousDay = CreateRecord(
+            company.Id,
+            selectedDate.AddDays(-1),
+            TimeOnly.MaxValue,
+            "51 RPR 01");
+        var startOfDay = CreateRecord(
+            company.Id,
+            selectedDate,
+            TimeOnly.MinValue,
+            "51 RPR 02");
+        var endOfDay = CreateRecord(
+            company.Id,
+            selectedDate,
+            TimeOnly.MaxValue,
+            "51 RPR 03");
+        var nextDay = CreateRecord(
+            company.Id,
+            selectedDate.AddDays(1),
+            TimeOnly.MinValue,
+            "51 RPR 04");
+        dbContext.ExitRecords.AddRange(previousDay, startOfDay, endOfDay, nextDay);
+        await dbContext.SaveChangesAsync();
+
+        var results = await new ExitRecordDataAccess(dbContext)
+            .GetDailyReportRecordsAsync(selectedDate);
+
+        Assert.Equal(new[] { startOfDay.Id, endOfDay.Id }, results.Select(item => item.Id));
+        Assert.All(results, item =>
+        {
+            Assert.Equal(company.Name, item.CompanyName);
+            Assert.Equal(company.CompanyType, item.CompanyType);
+            Assert.Equal(company.CanDepartFromCenter, item.CompanyCanDepartFromCenter);
+        });
+        Assert.DoesNotContain(results, item => item.Id == previousDay.Id || item.Id == nextDay.Id);
+        await transaction.RollbackAsync();
+    }
+
     private static NigdeTerminalDbContext CreateDbContext() =>
         DatabaseBootstrap.CreateDbContext(AppContext.BaseDirectory);
 

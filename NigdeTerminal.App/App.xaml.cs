@@ -2,6 +2,7 @@
 using System.Windows;
 using NigdeTerminal.App.Data;
 using NigdeTerminal.App.Pricing;
+using NigdeTerminal.App.Reporting;
 using NigdeTerminal.App.Services;
 
 namespace NigdeTerminal.App;
@@ -26,12 +27,16 @@ public partial class App : Application
             vehiclePlateService,
             pricingService,
             exitRecordDataAccess);
+        var dailyReportService = new DailyReportService(exitRecordDataAccess);
+        var dailyExcelReportWriter = new DailyExcelReportWriter();
         var mainWindow = new MainWindow(
             companyDataAccess,
             pricingService,
             vehiclePlateService,
             exitRegistrationService,
-            exitRecordDataAccess);
+            exitRecordDataAccess,
+            dailyReportService,
+            dailyExcelReportWriter);
         MainWindow = mainWindow;
         mainWindow.Show();
     }
